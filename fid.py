@@ -21,11 +21,13 @@ import numpy as np
 import os
 import gzip, pickle
 import tensorflow as tf
-from scipy.misc import imread
+# from scipy.misc.pilutil import imread
+from imageio import imread
 from scipy import linalg
 import pathlib
 import urllib
 import warnings
+from tqdm import tqdm
 
 class InvalidFIDException(Exception):
     pass
@@ -216,7 +218,7 @@ def get_activations_from_files(files, sess, batch_size=50, verbose=False):
     n_batches = d0//batch_size
     n_used_imgs = n_batches*batch_size
     pred_arr = np.empty((n_used_imgs,2048))
-    for i in range(n_batches):
+    for i in tqdm(range(n_batches)):
         if verbose:
             print("\rPropagating batch %d/%d" % (i+1, n_batches), end="", flush=True)
         start = i*batch_size
@@ -275,7 +277,7 @@ def check_or_download_inception(inception_path):
     return str(model_file)
 
 
-def _handle_path(path, sess, low_profile=False):
+def _handle_path(path, sess, low_profile=True):
     if path.endswith('.npz'):
         f = np.load(path)
         m, s = f['mu'][:], f['sigma'][:]
